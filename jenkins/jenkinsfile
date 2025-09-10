@@ -1,0 +1,99 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB = credentials('murali11yogi') // If using Docker
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Ksami9812/Newfile'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'echo "Building the application..."'
+                // Example: sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo "Running tests..."'
+                // Example: sh 'mvn test'
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                sh 'echo "Building and pushing Docker image..."'
+                // Example: sh 'docker build -t myapp:latest .'
+                // Example: sh 'docker push myapp:latest'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sshagent(['ec2-user']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@54.164.101.9 "
+                        docker pull myapp:latest &&
+                        docker run -d -p 8080:8080 myapp:latest
+                    "
+                    '''
+                }
+            }
+        }
+    }
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB = credentials('murali11yogi') // If using Docker
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Ksami9812/Newfile'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'echo "Building the application..."'
+                // Example: sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo "Running tests..."'
+                // Example: sh 'mvn test'
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                sh 'echo "Building and pushing Docker image..."'
+                // Example: sh 'docker build -t myapp:latest .'
+                // Example: sh 'docker push myapp:latest'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sshagent(['ec2-user']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@54.164.101.9 "
+                        docker pull myapp:latest &&
+                        docker run -d -p 8080:8080 myapp:latest
+                    "
+                    '''
+                }
+            }
+        }
+    }
+}}
