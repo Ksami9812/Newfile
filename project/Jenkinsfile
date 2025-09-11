@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()  // This makes the pipeline run automatically when GitHub sends a webhook
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Pull code from your GitHub repo
+                git branch: 'main', url: 'https://github.com/YourUsername/YourRepo.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'echo "Building the application..."'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'echo "Deploying application..."'
+            }
+        }
+    }
+}
+
+test
+test
