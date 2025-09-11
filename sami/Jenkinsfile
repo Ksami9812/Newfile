@@ -1,21 +1,62 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_HUB = credentials('murali11yogi') // Docker Hub credentials in Jenkins
+        DOCKER_IMAGE = "murali11yogi/myapp:latest" // Replace with your Docker Hub repo
+    }
+
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Ksami9812/Newfile.git'
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Building the project...'
+                sh 'echo "Building the application..."'
+                // Example: sh 'mvn clean install'
             }
         }
+
         stage('Test') {
             steps {
-                echo 'Running tests...'
+                sh 'echo "Running tests..."'
+                // Example: sh 'mvn test'
             }
         }
+
+        stage('Docker Build & Push') {
+            steps {
+                sh '''
+                echo "Logging in to Docker Hub..."
+                echo $DOCKER_HUB_PSW | docker login -u $DOCKER_HUB_USR --password-stdin
+                echo "Building Docker image..."
+                docker build -t $DOCKER_IMAGE .
+                echo "Pushing Docker image..."
+                docker push $DOCKER_IMAGE
+                '''
+            }
+        }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
+                sshagent(['dff36d782481c3acbde7518c2b1d5f6d']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@54.164.101.9 "
+                        docker pull $DOCKER_IMAGE &&
+                        docker stop myapp || true &&
+                        docker rm myapp || true &&
+                        docker run -d --name myapp -p 8080:8080 $DOCKER_IMAGE
+                    "
+                    '''
+                }
             }
         }
     }
 }
+
+add
+build
 
